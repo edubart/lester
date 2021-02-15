@@ -9,6 +9,8 @@ It is highly inspired by
 and was created to replace it without dependencies in the
 [Nelua](https://github.com/edubart/nelua-lang) compiler.
 
+[![asciicast](https://asciinema.org/a/GihfI07vCt9Q7cvL6xCtnoNl1.svg)](https://asciinema.org/a/GihfI07vCt9Q7cvL6xCtnoNl1)
+
 ## Features
 
 * Minimal, just one file.
