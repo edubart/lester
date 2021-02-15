@@ -64,13 +64,13 @@ lusted.exit() -- Exit with success if all tests passed.
 To customize the output of lusted externally,
 you can set the following environment variables before running a test suite:
 
-* LUSTED_QUIET="true", omit print of passed tests.
-* LUSTED_COLORED="false", disable colored output.
-* LUSTED_SHOW_TRACEBACK="false", disable traceback on test failures.
-* LUSTED_SHOW_ERROR="false", omit print of error description of failed tests.
-* LUSTED_STOP_ON_FAIL="true", stop on first test failure.
-* LUSTED_UTF8TERM="false", disable printing of UTF-8 characters.
-* LUSTED_FILTER="some text", filter the tests that should be run.
+* `LUSTED_QUIET="true"`, omit print of passed tests.
+* `LUSTED_COLORED="false"`, disable colored output.
+* `LUSTED_SHOW_TRACEBACK="false"`, disable traceback on test failures.
+* `LUSTED_SHOW_ERROR="false"`, omit print of error description of failed tests.
+* `LUSTED_STOP_ON_FAIL="true"`, stop on first test failure.
+* `LUSTED_UTF8TERM="false"`, disable printing of UTF-8 characters.
+* `LUSTED_FILTER="some text"`, filter the tests that should be run.
 
 Note that these configurations can be changed via script too, check the documentation.
 
