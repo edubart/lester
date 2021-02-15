@@ -5,8 +5,8 @@ Minimal Lua test framework.
 Lusted is a minimal unit testing framework for Lua with a focus on being simple to use.
 
 It is highly inspired by
-[Busted](http://olivinelabs.com/busted/),
-and was created to replace it without dependencies in the
+[Busted](http://olivinelabs.com/busted/) and [Lust](https://github.com/bjornbytes/lust).
+It was mainly created to replace Busted without dependencies in the
 [Nelua](https://github.com/edubart/nelua-lang) compiler.
 
 [![asciicast](https://asciinema.org/a/GihfI07vCt9Q7cvL6xCtnoNl1.svg)](https://asciinema.org/a/GihfI07vCt9Q7cvL6xCtnoNl1)
@@ -41,16 +41,16 @@ lusted.show_traceback = false
 
 describe('my project', function()
   lusted.before(function()
-    -- This gets run before every test.
+    -- This function is run before every test.
   end)
 
-  describe('module1', function() -- Can be nested.
+  describe('module1', function() -- Describe blocks can be nested.
     it('feature1', function()
-      expect.equal('astring', 'astring') -- Pass.
+      expect.equal('something', 'something') -- Pass.
     end)
 
     it('feature2', function()
-      expect.exist(nil) -- Fail.
+      expect.truthy(false) -- Fail.
     end)
   end)
 end)

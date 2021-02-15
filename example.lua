@@ -6,16 +6,16 @@ lusted.show_traceback = false
 
 describe('my project', function()
   lusted.before(function()
-    -- This gets run before every test.
+    -- This function is run before every test.
   end)
 
-  describe('module1', function() -- Can be nested.
+  describe('module1', function() -- Describe blocks can be nested.
     it('feature1', function()
-      expect.equal('astring', 'astring') -- Pass.
+      expect.equal('something', 'something') -- Pass.
     end)
 
     it('feature2', function()
-      expect.exist(nil) -- Fail.
+      expect.truthy(false) -- Fail.
     end)
   end)
 end)
