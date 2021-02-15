@@ -1,14 +1,23 @@
-local lusted = {}
+local function getboolenv(varname, default)
+  local val = os.getenv(varname)
+  if val == 'true' then
+    return true
+  elseif val == 'false' then
+    return false
+  end
+  return default
+end
 
 --TODO: filters
-local config = {
-  quiet = false,
-  colored = true,
-  show_error_traceback = true,
-  show_error = true,
-  stop_on_failure = false,
+local lusted = {
+  quiet = getboolenv('LUSTED_QUIET', false),
+  colored = getboolenv('LUSTED_COLORED', true),
+  show_traceback = getboolenv('LUSTED_SHOW_TRACEBACK', true),
+  show_error = getboolenv('LUSTED_SHOW_ERROR', true),
+  stop_on_fail = getboolenv('LUSTED_STOP_ON_FAIL', false),
+  seconds = os.clock,
 }
-lusted.config = config
+
 local level = 0
 local successes = 0
 local total_successes = 0
@@ -27,23 +36,13 @@ local color_table = {
   blue = string.char(27) .. '[34m',
   magenta = string.char(27) .. '[35m',
 }
-local colors = setmetatable({}, {
-  __index = function(_, key)
-    if config.colored then
-      return color_table[key]
-    else
-      return ''
-    end
-  end
-})
-
-local function elapsed(last)
-  return string.format('%.6f', os.clock() - last)
-end
+local colors = setmetatable({}, { __index = function(_, key)
+  return lusted.colored and color_table[key] or ''
+end})
 
 function lusted.describe(name, fn)
   if level == 0 then
-    start = os.clock()
+    start = lusted.seconds()
     if not lusted_start then
       lusted_start = start
     end
@@ -56,18 +55,16 @@ function lusted.describe(name, fn)
   afters[level] = nil
   befores[level] = nil
   level = level - 1
-  if level == 0 and not config.quiet then
-    if failures == 0 then
-      io.write(colors.green, '[====]')
-    else
-      io.write(colors.red, '[====]')
-    end
-    io.write(' ', colors.magenta, name, colors.reset,' | ',
-             colors.green, successes, colors.reset, ' successes / ')
+  if level == 0 and not lusted.quiet then
+    local io_write = io.write
+    local colors_reset, colors_green = colors.reset, colors.green
+    io_write(failures == 0 and colors_green or colors.red, '[====] ',
+             colors.magenta, name, colors_reset, ' | ',
+             colors_green, successes, colors_reset, ' successes / ')
     if failures > 0 then
-      io.write(colors.red, failures, colors.reset, ' failures / ')
+      io_write(colors.red, failures, colors_reset, ' failures / ')
     end
-    io.write(colors.bright, elapsed(start), colors.reset, ' seconds\n')
+    io_write(colors.bright, string.format('%.6f', lusted.seconds() - start), colors_reset, ' seconds\n')
   end
 end
 
@@ -77,25 +74,24 @@ end
 
 local function show_error_line(err)
   local info = debug.getinfo(3)
-  io.write(' (', colors.blue, info.short_src, colors.reset,
-           ':', colors.bright, info.currentline, colors.reset)
-  local fnsrc = info.short_src..':'..info.currentline
-  if err and config.show_error_traceback then
-    local line2
+  local io_write = io.write
+  local colors_reset = colors.reset
+  local short_src, currentline = info.short_src, info.currentline
+  io_write(' (', colors.blue, short_src, colors_reset,
+           ':', colors.bright, currentline, colors_reset)
+  if err and lusted.show_traceback then
+    local fnsrc = short_src..':'..currentline
     for cap1, cap2 in err:gmatch('\t[^\n:]+:(%d+): in function <([^>]+)>\n') do
       if cap2 == fnsrc then
-        line2 = tonumber(cap1)
+        io_write('/', colors.bright, cap1, colors_reset)
         break
       end
     end
-    if line2 then
-      io.write('/', colors.bright, line2, colors.reset)
-    end
   end
-  io.write(')')
+  io_write(')')
 end
 
-local last_succeeded
+local last_succeeded = false
 function lusted.it(name, fn)
   for _,levelbefores in ipairs(befores) do
     for _,beforefn in ipairs(levelbefores) do
@@ -103,7 +99,7 @@ function lusted.it(name, fn)
     end
   end
   local success, err
-  if config.show_error_traceback then
+  if lusted.show_traceback then
     success, err = xpcall(fn, error_handler)
   else
     success, err = pcall(fn)
@@ -115,43 +111,42 @@ function lusted.it(name, fn)
     failures = failures + 1
     total_failures = total_failures + 1
   end
-  if not config.quiet then
+  local io_write = io.write
+  local colors_reset = colors.reset
+  if not lusted.quiet then
     if success then
-      io.write(colors.green, '[ OK ]', colors.reset)
+      io_write(colors.green, '[ OK ] ', colors_reset)
     else
-      io.write(colors.red, '[FAIL]', colors.reset)
+      io_write(colors.red, '[FAIL] ', colors_reset)
     end
     for _,descname in ipairs(names) do
-      io.write(' ', colors.magenta, descname, colors.reset, ' | ')
+      io_write(colors.magenta, descname, colors_reset, ' | ')
     end
-    io.write(colors.bright, name, colors.reset)
+    io_write(colors.bright, name, colors_reset)
     if not success then
       show_error_line(err)
     end
-    io.write('\n')
+    io_write('\n')
   else
     if success then
-      io.write(colors.green, 'O', colors.reset)
+      io_write(colors.green, 'O', colors_reset)
     else
-      if last_succeeded then
-        io.write('\n')
-      end
-      io.write(colors.red, 'FAIL', colors.reset)
-      if not success then
-        show_error_line(err)
-        io.write('\n')
-      end
+      io_write(last_succeeded and '\n' or '',
+               colors.red, 'FAIL', colors_reset)
+      show_error_line(err)
+      io_write('\n')
     end
   end
-  if err and config.show_error then
-    io.write(err, '\n\n')
+  if err and lusted.show_error then
+    io_write(err, '\n\n')
   end
   io.flush()
-  if not success and config.stop_on_failure then
-    if config.quiet then
-      io.write('\n')
+  if not success and lusted.stop_on_fail then
+    if lusted.quiet then
+      io_write('\n')
+      io.flush()
     end
-    os.exit(-1)
+    lusted.exit()
   end
   for _,levelafters in ipairs(afters) do
     for _,afterfn in ipairs(levelafters) do
@@ -162,22 +157,29 @@ function lusted.it(name, fn)
 end
 
 function lusted.before(fn)
-  befores[level] = befores[level] or {}
-  table.insert(befores[level], fn)
+  local levelbefores = befores[level]
+  if not levelbefores then
+    levelbefores = {}
+    befores[level] = levelbefores
+  end
+  levelbefores[#levelbefores+1] = fn
 end
 
 function lusted.after(fn)
-  afters[level] = afters[level] or {}
-  table.insert(afters[level], fn)
+  local levelafters = afters[level]
+  if not levelafters then
+    levelafters = {}
+    afters[level] = levelafters
+  end
+  levelafters[#levelafters+1] = fn
 end
 
 function lusted.report()
-  if config.quiet then
-    io.write('\n')
-  end
-  io.write(colors.green, successes, colors.reset, ' successes / ',
-           colors.red, failures, colors.reset, ' failures / ',
-           colors.bright, elapsed(lusted_start), colors.reset, ' seconds\n')
+  local colors_reset = colors.reset
+  io.write(lusted.quiet and '\n' or '',
+           colors.green, successes, colors_reset, ' successes / ',
+           colors.red, failures, colors_reset, ' failures / ',
+           colors.bright, string.format('%.6f', lusted.seconds() - lusted_start), colors_reset, ' seconds\n')
   io.flush()
   return total_failures == 0
 end
