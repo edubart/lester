@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lusted - v0.1.0 - 15/Feb/2021
+lusted - v0.1.1 - 15/Feb/2021
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lusted
 Minimal Lua test framework.
