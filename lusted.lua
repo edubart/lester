@@ -8,13 +8,13 @@ local function getboolenv(varname, default)
   return default
 end
 
---TODO: filters
 local lusted = {
   quiet = getboolenv('LUSTED_QUIET', false),
   colored = getboolenv('LUSTED_COLORED', true),
   show_traceback = getboolenv('LUSTED_SHOW_TRACEBACK', true),
   show_error = getboolenv('LUSTED_SHOW_ERROR', true),
   stop_on_fail = getboolenv('LUSTED_STOP_ON_FAIL', false),
+  filter = os.getenv('LUSTED_FILTER'),
   seconds = os.clock,
 }
 
@@ -54,8 +54,9 @@ function lusted.describe(name, fn)
   fn()
   afters[level] = nil
   befores[level] = nil
+  names[level] = nil
   level = level - 1
-  if level == 0 and not lusted.quiet then
+  if level == 0 and not lusted.quiet and (successes > 0 or failures > 0) then
     local io_write = io.write
     local colors_reset, colors_green = colors.reset, colors.green
     io_write(failures == 0 and colors_green or colors.red, '[====] ',
@@ -93,6 +94,12 @@ end
 
 local last_succeeded = false
 function lusted.it(name, fn)
+  if lusted.filter then
+    local fullname = table.concat(names, ' | ')..' | '..name
+    if not fullname:match(lusted.filter) then
+      return
+    end
+  end
   for _,levelbefores in ipairs(befores) do
     for _,beforefn in ipairs(levelbefores) do
       beforefn(name)

@@ -12,5 +12,6 @@ coverage-test:
 	LUSTED_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
 	LUSTED_QUIET=true LUSTED_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
 	LUSTED_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
+	LUSTED_FILTER="nested" LUSTED_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
 	$(LUACOV)
 	tail -n 6 luacov.report.out
