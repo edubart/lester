@@ -1,3 +1,4 @@
+ROCKSPEC=rockspecs/lusted-0.*.rockspec
 LUA=lua
 LUACOV=luacov
 LUALCOV=$(LUA) -lluacov
@@ -5,7 +6,7 @@ LUALCOV=$(LUA) -lluacov
 test:
 	LUSTED_TEST_SKIP_FAIL=true $(LUA) tests.lua
 
-coverage-test:
+coverage:
 	rm -f luacov.stats.out
 	$(LUA) -lluacov tests.lua
 	LUSTED_QUIET=true $(LUALCOV) tests.lua
@@ -20,8 +21,16 @@ coverage-test:
 	$(LUACOV)
 	tail -n 6 luacov.report.out
 
+docs:
+	ldoc -d docs -f markdown -t "Lusted Reference" lusted.lua
+
 install:
 	luarocks make --local
 
 upload:
 	luarocks upload --api-key=$(LUAROCKS_APIKEY) $(ROCKSPEC)
+
+clean:
+	rm -f *.out
+
+.PHONY: docs

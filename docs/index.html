@@ -1,0 +1,704 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Lusted Reference</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>lusted</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>lusted</code></h1>
+<p>Lusted is a minimal unit testing framework for Lua with a focus on being simple to use.</p>
+<p>
+
+
+<h2>Features</h2>
+
+<ul>
+    <li>Minimal, just one file.</li>
+    <li>Self contained, no external dependencies.</li>
+    <li>Simple and hackable when needed.</li>
+    <li>Use <a href="index.html#describe">describe</a> and <a href="index.html#it">it</a> blocks to describe tests.</li>
+    <li>Supports <a href="index.html#before">before</a> and <a href="index.html#after">after</a> handlers.</li>
+    <li>Colored output.</li>
+    <li>Configurable via the script or with environment variables.</li>
+    <li>Quiet mode, to use in live development.</li>
+    <li>Optionally filter tests by name.</li>
+    <li>Show traceback on errors.</li>
+    <li>Show time to complete tests.</li>
+    <li>Works with Lua 5.1+.</li>
+    <li>Efficient.</li>
+</ul>
+
+<h2>Usage</h2>
+
+<p>Copy <code>lusted.lua</code> file to a project and require it,
+which returns a table that includes all of the functionality:</p>
+
+
+<pre>
+<span class="keyword">local</span> lusted = <span class="global">require</span> <span class="string">'lusted'</span>
+<span class="keyword">local</span> describe, it, expect = lusted.describe, lusted.it, lusted.expect
+
+<span class="comment">-- Customize lusted configuration.
+</span>lusted.show_traceback = <span class="keyword">false</span>
+
+describe(<span class="string">'my project'</span>, <span class="keyword">function</span>()
+  lusted.before(<span class="keyword">function</span>()
+    <span class="comment">-- This gets run before every test.
+</span>  <span class="keyword">end</span>)
+
+  describe(<span class="string">'module1'</span>, <span class="keyword">function</span>() <span class="comment">-- Can be nested.
+</span>    it(<span class="string">'feature1'</span>, <span class="keyword">function</span>()
+      expect.equal(<span class="string">'astring'</span>, <span class="string">'astring'</span>) <span class="comment">-- Pass.
+</span>    <span class="keyword">end</span>)
+
+    it(<span class="string">'feature2'</span>, <span class="keyword">function</span>()
+      expect.exist(<span class="keyword">nil</span>) <span class="comment">-- Fail.
+</span>    <span class="keyword">end</span>)
+  <span class="keyword">end</span>)
+<span class="keyword">end</span>)
+
+lusted.report() <span class="comment">-- Print overall statistic of the tests run.
+</span>lusted.exit() <span class="comment">-- Exit with success if all tests passed.</span>
+</pre>
+
+
+<h2>Customizing output with environment variables</h2>
+
+<p>To customize the output of lusted externally,
+you can set the following environment variables before running a test suite:</p>
+
+<ul>
+    <li><code>LUSTED_QUIET=&quot;true&quot;</code>, omit print of passed tests.</li>
+    <li><code>LUSTED_COLORED=&quot;false&quot;</code>, disable colored output.</li>
+    <li><code>LUSTED_SHOW_TRACEBACK=&quot;false&quot;</code>, disable traceback on test failures.</li>
+    <li><code>LUSTED_SHOW_ERROR=&quot;false&quot;</code>, omit print of error description of failed tests.</li>
+    <li><code>LUSTED_STOP_ON_FAIL=&quot;true&quot;</code>, stop on first test failure.</li>
+    <li><code>LUSTED_UTF8TERM=&quot;false&quot;</code>, disable printing of UTF-8 characters.</li>
+    <li><code>LUSTED_FILTER=&quot;some text&quot;</code>, filter the tests that should be run.</li>
+</ul>
+
+<p>Note that these configurations can be changed via script too, check the documentation.</p>
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#describe">describe (name, func)</a></td>
+	<td class="summary">Describe a block of tests, which consists in a set of tests.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#it">it (name, func)</a></td>
+	<td class="summary">Declare a test, which consists of a set of assertions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#before">before (func)</a></td>
+	<td class="summary">Set a function that is called before every test inside a describe block.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#after">after (func)</a></td>
+	<td class="summary">Set a function that is called after every test inside a describe block.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#report">report ()</a></td>
+	<td class="summary">Pretty print statistics of all test runs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#exit">exit ()</a></td>
+	<td class="summary">Exit the application with success code if all tests passed, or failure code otherwise.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.fail">expect.fail (func, expected)</a></td>
+	<td class="summary">Check if a function fails with an error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.not_fail">expect.not_fail (func)</a></td>
+	<td class="summary">Check if a function does not fail with a error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.exist">expect.exist (v)</a></td>
+	<td class="summary">Check if a value is not <code>nil</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.not_exist">expect.not_exist (v)</a></td>
+	<td class="summary">Check if a value is <code>nil</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.truthy">expect.truthy (v)</a></td>
+	<td class="summary">Check if an expression is evaluates to <code>true</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.falsy">expect.falsy (v)</a></td>
+	<td class="summary">Check if an expression is evaluates to <code>false</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.equal">expect.equal (v1, v2)</a></td>
+	<td class="summary">Check if two values are equal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect.not_equal">expect.not_equal (v1, v2)</a></td>
+	<td class="summary">Check if two values are not equal.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#quiet">quiet</a></td>
+	<td class="summary">Weather lines of passed tests should not be printed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#colored">colored</a></td>
+	<td class="summary">Weather the output should  be colorized.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#show_traceback">show_traceback</a></td>
+	<td class="summary">Weather a traceback must be shown on test failures.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#show_error">show_error</a></td>
+	<td class="summary">Weather the error description of a test failure should be shown.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#stop_on_fail">stop_on_fail</a></td>
+	<td class="summary">Weather test suite should exit on first test failure.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utf8term">utf8term</a></td>
+	<td class="summary">Weather we can print UTF-8 characters to the terminal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#filter">filter</a></td>
+	<td class="summary">A string with a lua pattern to filter tests.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#seconds">seconds</a></td>
+	<td class="summary">Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.1/manual.html#pdf-os.clock">os.clock</a> by default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#colors">colors</a></td>
+	<td class="summary">Table of terminal colors codes, can be customized.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#expect">expect</a></td>
+	<td class="summary">Expect module, containing utility function for doing assertions inside a test.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "describe"></a>
+    <strong>describe (name, func)</strong>
+    </dt>
+    <dd>
+    Describe a block of tests, which consists in a set of tests.
+ Describes can be nested.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         A string used to describe the block.
+        </li>
+        <li><span class="parameter">func</span>
+         A function containing all the tests or other describes.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "it"></a>
+    <strong>it (name, func)</strong>
+    </dt>
+    <dd>
+    Declare a test, which consists of a set of assertions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         A name for the test.
+        </li>
+        <li><span class="parameter">func</span>
+         The function containing all assertions.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "before"></a>
+    <strong>before (func)</strong>
+    </dt>
+    <dd>
+    Set a function that is called before every test inside a describe block.
+ A single string containing the name of the test about to be run will be passed to <code>func</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "after"></a>
+    <strong>after (func)</strong>
+    </dt>
+    <dd>
+    Set a function that is called after every test inside a describe block.
+ A single string containing the name of the test that was finished will be passed to <code>func</code>.
+ The function is executed independently if the test passed or failed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "report"></a>
+    <strong>report ()</strong>
+    </dt>
+    <dd>
+    Pretty print statistics of all test runs.
+ With total success, total failures and run time in seconds.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "exit"></a>
+    <strong>exit ()</strong>
+    </dt>
+    <dd>
+    Exit the application with success code if all tests passed, or failure code otherwise.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.fail"></a>
+    <strong>expect.fail (func, expected)</strong>
+    </dt>
+    <dd>
+    Check if a function fails with an error.
+ If <code>expected</code> is nil then any error is accepted.
+ If <code>expected</code> is a string then we check if the error contains that string.
+ If <code>expected</code> is anything else then we check if both are equal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+
+
+
+        </li>
+        <li><span class="parameter">expected</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.not_fail"></a>
+    <strong>expect.not_fail (func)</strong>
+    </dt>
+    <dd>
+    Check if a function does not fail with a error.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.exist"></a>
+    <strong>expect.exist (v)</strong>
+    </dt>
+    <dd>
+    Check if a value is not <code>nil</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.not_exist"></a>
+    <strong>expect.not_exist (v)</strong>
+    </dt>
+    <dd>
+    Check if a value is <code>nil</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.truthy"></a>
+    <strong>expect.truthy (v)</strong>
+    </dt>
+    <dd>
+    Check if an expression is evaluates to <code>true</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.falsy"></a>
+    <strong>expect.falsy (v)</strong>
+    </dt>
+    <dd>
+    Check if an expression is evaluates to <code>false</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.equal"></a>
+    <strong>expect.equal (v1, v2)</strong>
+    </dt>
+    <dd>
+    Check if two values are equal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v1</span>
+
+
+
+        </li>
+        <li><span class="parameter">v2</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect.not_equal"></a>
+    <strong>expect.not_equal (v1, v2)</strong>
+    </dt>
+    <dd>
+    Check if two values are not equal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v1</span>
+
+
+
+        </li>
+        <li><span class="parameter">v2</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "quiet"></a>
+    <strong>quiet</strong>
+    </dt>
+    <dd>
+    Weather lines of passed tests should not be printed.  False by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "colored"></a>
+    <strong>colored</strong>
+    </dt>
+    <dd>
+    Weather the output should  be colorized.  True by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "show_traceback"></a>
+    <strong>show_traceback</strong>
+    </dt>
+    <dd>
+    Weather a traceback must be shown on test failures.  True by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "show_error"></a>
+    <strong>show_error</strong>
+    </dt>
+    <dd>
+    Weather the error description of a test failure should be shown.  True by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "stop_on_fail"></a>
+    <strong>stop_on_fail</strong>
+    </dt>
+    <dd>
+    Weather test suite should exit on first test failure.  False by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "utf8term"></a>
+    <strong>utf8term</strong>
+    </dt>
+    <dd>
+    Weather we can print UTF-8 characters to the terminal.  True by default when supported.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "filter"></a>
+    <strong>filter</strong>
+    </dt>
+    <dd>
+    A string with a lua pattern to filter tests.  Nil by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "seconds"></a>
+    <strong>seconds</strong>
+    </dt>
+    <dd>
+    Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.1/manual.html#pdf-os.clock">os.clock</a> by default.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "colors"></a>
+    <strong>colors</strong>
+    </dt>
+    <dd>
+    Table of terminal colors codes, can be customized.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "expect"></a>
+    <strong>expect</strong>
+    </dt>
+    <dd>
+    Expect module, containing utility function for doing assertions inside a test.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2021-02-15 12:39:17 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
