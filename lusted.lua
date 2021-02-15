@@ -1,3 +1,8 @@
+local function is_utf8term()
+  local lang = os.getenv('LANG')
+  return lang:lower():match('utf%-8$') and true or false
+end
+
 local function getboolenv(varname, default)
   local val = os.getenv(varname)
   if val == 'true' then
@@ -14,17 +19,19 @@ local lusted = {
   show_traceback = getboolenv('LUSTED_SHOW_TRACEBACK', true),
   show_error = getboolenv('LUSTED_SHOW_ERROR', true),
   stop_on_fail = getboolenv('LUSTED_STOP_ON_FAIL', false),
+  utf8term = getboolenv('LUSTED_UTF8TERM', is_utf8term()),
   filter = os.getenv('LUSTED_FILTER'),
   seconds = os.clock,
 }
 
+local lusted_start = nil
+local last_succeeded = false
 local level = 0
 local successes = 0
 local total_successes = 0
 local failures = 0
 local total_failures = 0
 local start = 0
-local lusted_start
 local befores = {}
 local afters = {}
 local names = {}
@@ -69,7 +76,7 @@ function lusted.describe(name, fn)
   end
 end
 
-local function error_handler(err)
+local function xpcall_error_handler(err)
   return debug.traceback(tostring(err), 2)
 end
 
@@ -92,7 +99,15 @@ local function show_error_line(err)
   io_write(')')
 end
 
-local last_succeeded = false
+local function show_test_name(name)
+  local io_write = io.write
+  local colors_reset = colors.reset
+  for _,descname in ipairs(names) do
+    io_write(colors.magenta, descname, colors_reset, ' | ')
+  end
+  io_write(colors.bright, name, colors_reset)
+end
+
 function lusted.it(name, fn)
   if lusted.filter then
     local fullname = table.concat(names, ' | ')..' | '..name
@@ -107,7 +122,7 @@ function lusted.it(name, fn)
   end
   local success, err
   if lusted.show_traceback then
-    success, err = xpcall(fn, error_handler)
+    success, err = xpcall(fn, xpcall_error_handler)
   else
     success, err = pcall(fn)
   end
@@ -126,25 +141,38 @@ function lusted.it(name, fn)
     else
       io_write(colors.red, '[FAIL] ', colors_reset)
     end
-    for _,descname in ipairs(names) do
-      io_write(colors.magenta, descname, colors_reset, ' | ')
-    end
-    io_write(colors.bright, name, colors_reset)
+    show_test_name(name)
     if not success then
       show_error_line(err)
     end
     io_write('\n')
   else
     if success then
-      io_write(colors.green, 'O', colors_reset)
+      local o = (lusted.utf8term and lusted.colored) and
+                string.char(226, 151, 143) or 'o'
+      io_write(colors.green, o, colors_reset)
     else
       io_write(last_succeeded and '\n' or '',
-               colors.red, 'FAIL', colors_reset)
+               colors.red, '[FAIL] ', colors_reset)
+      show_test_name(name)
       show_error_line(err)
       io_write('\n')
     end
   end
   if err and lusted.show_error then
+    if lusted.colored then
+      local errfile, errline, errmsg, rest = err:match('^([^:\n]+):(%d+): ([^\n]+)\n(.*)')
+      if errfile and errline and errmsg and rest then
+        io_write(colors.blue, errfile, colors_reset,
+                 ':', colors.bright, errline, colors_reset, ': ')
+        if errmsg:match('^%w+') then
+          io_write(colors.red, errmsg, colors_reset, '\n')
+        else
+          io_write(errmsg, '\n')
+        end
+        err = rest
+      end
+    end
     io_write(err, '\n\n')
   end
   io.flush()
@@ -182,11 +210,12 @@ function lusted.after(fn)
 end
 
 function lusted.report()
+  local now = lusted.seconds()
   local colors_reset = colors.reset
   io.write(lusted.quiet and '\n' or '',
            colors.green, successes, colors_reset, ' successes / ',
            colors.red, failures, colors_reset, ' failures / ',
-           colors.bright, string.format('%.6f', lusted.seconds() - lusted_start), colors_reset, ' seconds\n')
+           colors.bright, string.format('%.6f', now - (lusted_start or now)), colors_reset, ' seconds\n')
   io.flush()
   return total_failures == 0
 end
