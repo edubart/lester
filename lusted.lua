@@ -125,6 +125,7 @@ function lusted.it(name, fn)
     success, err = xpcall(fn, xpcall_error_handler)
   else
     success, err = pcall(fn)
+    err = tostring(err)
   end
   if success then
     successes = successes + 1
@@ -161,14 +162,14 @@ function lusted.it(name, fn)
   end
   if err and lusted.show_error then
     if lusted.colored then
-      local errfile, errline, errmsg, rest = err:match('^([^:\n]+):(%d+): ([^\n]+)\n(.*)')
+      local errfile, errline, errmsg, rest = err:match('^([^:\n]+):(%d+): ([^\n]+)(.*)')
       if errfile and errline and errmsg and rest then
         io_write(colors.blue, errfile, colors_reset,
                  ':', colors.bright, errline, colors_reset, ': ')
-        if errmsg:match('^%w+') then
-          io_write(colors.red, errmsg, colors_reset, '\n')
+        if errmsg:match('^%w([^:]*)$') then
+          io_write(colors.red, errmsg, colors_reset)
         else
-          io_write(errmsg, '\n')
+          io_write(errmsg)
         end
         err = rest
       end
@@ -213,8 +214,8 @@ function lusted.report()
   local now = lusted.seconds()
   local colors_reset = colors.reset
   io.write(lusted.quiet and '\n' or '',
-           colors.green, successes, colors_reset, ' successes / ',
-           colors.red, failures, colors_reset, ' failures / ',
+           colors.green, total_successes, colors_reset, ' successes / ',
+           colors.red, total_failures, colors_reset, ' failures / ',
            colors.bright, string.format('%.6f', now - (lusted_start or now)), colors_reset, ' seconds\n')
   io.flush()
   return total_failures == 0
@@ -224,4 +225,73 @@ function lusted.exit()
   os.exit(total_failures == 0 and 0 or -1)
 end
 
-return lusted
+local expect = {}
+lusted.expect = expect
+
+function expect.fail(fn, expected)
+  local ok, err = pcall(fn)
+  if ok then
+    error('expected function to fail', 2)
+  elseif expected and not err:find(expected, 1, true) then
+    error('expected function to fail\nexpected:\n'..expected..'\ngot:\n'..tostring(err), 2)
+  end
+end
+
+function expect.not_fail(fn)
+  local ok, err = pcall(fn)
+  if not ok then
+    error('expected function to not fail\ngot error:\n'..tostring(err), 2)
+  end
+end
+
+function expect.exist(v)
+  if v == nil then
+    error('expected value to exist\ngot:\n'..tostring(v), 2)
+  end
+end
+
+function expect.not_exist(v)
+  if v ~= nil then
+    error('expected value to not exist\ngot:\n'..tostring(v), 2)
+  end
+end
+
+function expect.truthy(v)
+  if not v then
+    error('expected expression to be true\ngot:\n'..tostring(v), 2)
+  end
+end
+
+function expect.falsy(v)
+  if v then
+    error('expected expression to be false\ngot:\n'..tostring(v), 2)
+  end
+end
+
+local function strict_eq(t1, t2)
+  if rawequal(t1, t2) then return true end
+  if type(t1) ~= type(t2) then return false end
+  if type(t1) ~= 'table' then return t1 == t2 end
+  if getmetatable(t1) ~= getmetatable(t2) then return false end
+  for k,v1 in pairs(t1) do
+    if not strict_eq(v1, t2[k]) then return false end
+  end
+  for k,v2 in pairs(t2) do
+    if not strict_eq(v2, t1[k]) then return false end
+  end
+  return true
+end
+
+function expect.equal(v, expected_v)
+  if not strict_eq(v, expected_v) then
+    error('expected values to be equal\nexpected:\n'..tostring(expected_v)..'\nbut got:\n'..tostring(v), 2)
+  end
+end
+
+function expect.not_equal(v, expected_v)
+  if strict_eq(v, expected_v) then
+    error('expected values to be not equal\nexpected:\n'..tostring(expected_v)..'\nbut got:\n'..tostring(v), 2)
+  end
+end
+
+return lusted, expect
