@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lester - v0.1.1 - 15/Feb/2021
+lester - v0.1.2 - 15/Feb/2021
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lester
 Minimal Lua test framework.

@@ -1,8 +1,8 @@
 package = "lester"
-version = "0.1.1-1"
+version = "0.1.2-1"
 source = {
   url = "git://github.com/edubart/lester.git",
-  tag = "v0.1.1"
+  tag = "v0.1.2"
 }
 description = {
   summary = "Minimal test framework for Lua",
