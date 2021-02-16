@@ -1,12 +1,12 @@
-package = "lusted"
+package = "lester"
 version = "0.1.1-1"
 source = {
-  url = "git://github.com/edubart/lusted.git",
+  url = "git://github.com/edubart/lester.git",
   tag = "v0.1.1"
 }
 description = {
   summary = "Minimal test framework for Lua",
-  homepage = "https://github.com/edubart/lusted",
+  homepage = "https://github.com/edubart/lester",
   license = "MIT"
 }
 dependencies = {
@@ -15,6 +15,6 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ['lusted'] = 'lusted.lua',
+    ['lester'] = 'lester.lua',
   }
 }

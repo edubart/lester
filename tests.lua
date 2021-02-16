@@ -1,15 +1,15 @@
-local lusted = require 'lusted'
+local lester = require 'lester'
 
-local describe, it, expect = lusted.describe, lusted.it, lusted.expect
-local skipfail = os.getenv('LUSTED_TEST_SKIP_FAIL') == 'true'
+local describe, it, expect = lester.describe, lester.it, lester.expect
+local skipfail = os.getenv('LESTER_TEST_SKIP_FAIL') == 'true'
 
-describe("lusted", function()
+describe("lester", function()
   local b = false
-  lusted.before(function()
+  lester.before(function()
     b = true
   end)
 
-  lusted.after(function()
+  lester.after(function()
     b = false
   end)
 
@@ -108,7 +108,7 @@ describe("lusted", function()
   end)
 end)
 
-lusted.report()
+lester.report()
 if skipfail then
-  lusted.exit()
+  lester.exit()
 end

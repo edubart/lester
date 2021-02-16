@@ -1,8 +1,8 @@
-# Lusted
+# Lester
 
 Minimal Lua test framework.
 
-Lusted is a minimal unit testing framework for Lua with a focus on being simple to use.
+Lester is a minimal unit testing framework for Lua with a focus on being simple to use.
 
 It is highly inspired by
 [Busted](http://olivinelabs.com/busted/) and [Lust](https://github.com/bjornbytes/lust).
@@ -29,18 +29,18 @@ It was mainly created to replace Busted without dependencies in the
 
 ## Usage
 
-Copy `lusted.lua` file to a project and require it,
+Copy `lester.lua` file to a project and require it,
 which returns a table that includes all of the functionality:
 
 ```lua
-local lusted = require 'lusted'
-local describe, it, expect = lusted.describe, lusted.it, lusted.expect
+local lester = require 'lester'
+local describe, it, expect = lester.describe, lester.it, lester.expect
 
--- Customize lusted configuration.
-lusted.show_traceback = false
+-- Customize lester configuration.
+lester.show_traceback = false
 
 describe('my project', function()
-  lusted.before(function()
+  lester.before(function()
     -- This function is run before every test.
   end)
 
@@ -55,39 +55,39 @@ describe('my project', function()
   end)
 end)
 
-lusted.report() -- Print overall statistic of the tests run.
-lusted.exit() -- Exit with success if all tests passed.
+lester.report() -- Print overall statistic of the tests run.
+lester.exit() -- Exit with success if all tests passed.
 ```
 
 ## Customizing output with environment variables
 
-To customize the output of lusted externally,
+To customize the output of lester externally,
 you can set the following environment variables before running a test suite:
 
-* `LUSTED_QUIET="true"`, omit print of passed tests.
-* `LUSTED_COLORED="false"`, disable colored output.
-* `LUSTED_SHOW_TRACEBACK="false"`, disable traceback on test failures.
-* `LUSTED_SHOW_ERROR="false"`, omit print of error description of failed tests.
-* `LUSTED_STOP_ON_FAIL="true"`, stop on first test failure.
-* `LUSTED_UTF8TERM="false"`, disable printing of UTF-8 characters.
-* `LUSTED_FILTER="some text"`, filter the tests that should be run.
+* `LESTER_QUIET="true"`, omit print of passed tests.
+* `LESTER_COLORED="false"`, disable colored output.
+* `LESTER_SHOW_TRACEBACK="false"`, disable traceback on test failures.
+* `LESTER_SHOW_ERROR="false"`, omit print of error description of failed tests.
+* `LESTER_STOP_ON_FAIL="true"`, stop on first test failure.
+* `LESTER_UTF8TERM="false"`, disable printing of UTF-8 characters.
+* `LESTER_FILTER="some text"`, filter the tests that should be run.
 
 Note that these configurations can be changed via script too, check the documentation.
 
 ## Documentation
 
 The full API reference and documentation can be viewed in the
-[documentation website](https://edubart.github.io/lusted/).
+[documentation website](https://edubart.github.io/lester/).
 
 ## Install
 
 You can use luarocks to install quickly:
 
 ```bash
-luarocks install lusted
+luarocks install lester
 ```
 
-Or just copy the `lusted.lua` file, the library is self contained in this single file with no dependencies.
+Or just copy the `lester.lua` file, the library is self contained in this single file with no dependencies.
 
 ## Tests
 

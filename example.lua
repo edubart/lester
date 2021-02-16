@@ -1,11 +1,11 @@
-local lusted = require 'lusted'
-local describe, it, expect = lusted.describe, lusted.it, lusted.expect
+local lester = require 'lester'
+local describe, it, expect = lester.describe, lester.it, lester.expect
 
--- Customize lusted configuration.
-lusted.show_traceback = false
+-- Customize lester configuration.
+lester.show_traceback = false
 
 describe('my project', function()
-  lusted.before(function()
+  lester.before(function()
     -- This function is run before every test.
   end)
 
@@ -20,5 +20,5 @@ describe('my project', function()
   end)
 end)
 
-lusted.report() -- Print overall statistic of the tests run.
-lusted.exit() -- Exit with success if all tests passed.
+lester.report() -- Print overall statistic of the tests run.
+lester.exit() -- Exit with success if all tests passed.

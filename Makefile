@@ -1,28 +1,28 @@
-ROCKSPEC=rockspecs/lusted-0.*.rockspec
+ROCKSPEC=rockspecs/lester-0.*.rockspec
 LUA=lua
 LUACOV=luacov
 LUALCOV=$(LUA) -lluacov
 
 test:
-	LUSTED_TEST_SKIP_FAIL=true $(LUA) tests.lua
+	LESTER_TEST_SKIP_FAIL=true $(LUA) tests.lua
 
 coverage:
 	rm -f luacov.stats.out
 	$(LUA) -lluacov tests.lua
-	LUSTED_QUIET=true $(LUALCOV) tests.lua
-	LUSTED_COLORED=false $(LUALCOV) tests.lua
-	LUSTED_SHOW_TRACEBACK=false $(LUALCOV) tests.lua
-	LUSTED_SHOW_ERROR=false $(LUALCOV) tests.lua
-	LUSTED_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
-	LUSTED_QUIET=true LUSTED_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
-	LUSTED_FILTER="nested" LUSTED_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
-	LUSTED_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
-	LUSTED_TEST_SKIP_FAIL=true LUSTED_QUIET=true $(LUALCOV) tests.lua
+	LESTER_QUIET=true $(LUALCOV) tests.lua
+	LESTER_COLORED=false $(LUALCOV) tests.lua
+	LESTER_SHOW_TRACEBACK=false $(LUALCOV) tests.lua
+	LESTER_SHOW_ERROR=false $(LUALCOV) tests.lua
+	LESTER_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
+	LESTER_QUIET=true LESTER_STOP_ON_FAIL=true $(LUALCOV) tests.lua || true
+	LESTER_FILTER="nested" LESTER_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
+	LESTER_TEST_SKIP_FAIL=true $(LUALCOV) tests.lua
+	LESTER_TEST_SKIP_FAIL=true LESTER_QUIET=true $(LUALCOV) tests.lua
 	$(LUACOV)
 	tail -n 6 luacov.report.out
 
 docs:
-	ldoc -d docs -f markdown -t "Lusted Reference" lusted.lua
+	ldoc -d docs -f markdown -t "Lester Reference" lester.lua
 
 install:
 	luarocks make --local
