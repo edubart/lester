@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lester - v0.1.2 - 15/Feb/2021
+lester - v0.1.3 - 20/jan/2023
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lester
 Minimal Lua test framework.
@@ -78,7 +78,7 @@ Note that these configurations can be changed via script too, check the document
 -- Returns whether the terminal supports UTF-8 characters.
 local function is_utf8term()
   local lang = os.getenv('LANG')
-  return (lang and lang:lower():match('utf%-8$')) and true or false
+  return (lang and lang:lower():match('utf%-?8$')) and true or false
 end
 
 -- Returns whether a system environment variable is "true".
@@ -227,7 +227,7 @@ function lester.it(name, func)
     end
   end
   -- Execute before handlers.
-  for _,levelbefores in ipairs(befores) do
+  for _,levelbefores in pairs(befores) do
     for _,beforefn in ipairs(levelbefores) do
       beforefn(name)
     end
@@ -304,7 +304,7 @@ function lester.it(name, func)
     lester.exit()
   end
   -- Execute after handlers.
-  for _,levelafters in ipairs(afters) do
+  for _,levelafters in pairs(afters) do
     for _,afterfn in ipairs(levelafters) do
       afterfn(name)
     end
