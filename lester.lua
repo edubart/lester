@@ -131,6 +131,7 @@ local color_codes = {
   bright = string.char(27) .. '[1m',
   red = string.char(27) .. '[31m',
   green = string.char(27) .. '[32m',
+  yellow = string.char(27) .. '[33m',
   blue = string.char(27) .. '[34m',
   magenta = string.char(27) .. '[35m',
 }
@@ -218,13 +219,23 @@ end
 --- Declare a test, which consists of a set of assertions.
 -- @param name A name for the test.
 -- @param func The function containing all assertions.
-function lester.it(name, func)
-  -- Skip the test if it does not match the filter.
+-- @param enabled If not nil and equals to false, the test will be skipped and a message will be shown.
+function lester.it(name, func, enabled)
+  -- Skip the test silently if it does not match the filter.
   if lester.filter then
     local fullname = table.concat(names, ' | ')..' | '..name
     if not fullname:match(lester.filter) then
       return
     end
+  end
+  local io_write = io.write
+  local colors_reset = colors.reset
+  -- Skip the test if it's disabled, while displaying a message
+  if enabled == false then
+    io_write(colors.yellow, '[SKIP] ', colors_reset)
+    show_test_name(name)
+    io_write('\n')
+    return
   end
   -- Execute before handlers.
   for _,levelbefores in pairs(befores) do
@@ -250,8 +261,6 @@ function lester.it(name, func)
     failures = failures + 1
     total_failures = total_failures + 1
   end
-  local io_write = io.write
-  local colors_reset = colors.reset
   -- Print the test run.
   if not lester.quiet then -- Show test status and complete test name.
     if success then
