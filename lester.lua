@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lester - v0.1.3 - 20/jan/2023
+lester - v0.1.3 - 22/Jan/2023
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lester
 Minimal Lua test framework.
@@ -150,14 +150,14 @@ lester.colors = colors
 -- @param func A function containing all the tests or other describes.
 function lester.describe(name, func)
   if level == 0 then -- Get start time for top level describe blocks.
+    failures = 0
+    successes = 0
     start = lester.seconds()
     if not lester_start then
       lester_start = start
     end
   end
   -- Setup describe block variables.
-  failures = 0
-  successes = 0
   level = level + 1
   names[level] = name
   -- Run the describe block.
