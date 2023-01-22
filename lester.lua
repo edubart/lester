@@ -51,6 +51,11 @@ describe('my project', function()
     it('feature2', function()
       expect.truthy(false) -- Fail.
     end)
+
+    local feature3_test_enabled = false
+    it('feature3', function() -- This test will be skipped.
+      expect.truthy(false) -- Fail.
+    end, feature3_test_enabled)
   end)
 end)
 
@@ -120,6 +125,8 @@ local successes = 0
 local total_successes = 0
 local failures = 0
 local total_failures = 0
+local skipped = 0
+local total_skipped = 0
 local start = 0
 local befores = {}
 local afters = {}
@@ -135,6 +142,8 @@ local color_codes = {
   blue = string.char(27) .. '[34m',
   magenta = string.char(27) .. '[35m',
 }
+
+local quiet_o_char = string.char(226, 151, 143)
 
 -- Colors table, returning proper color code if colored mode is enabled.
 local colors = setmetatable({}, { __index = function(_, key)
@@ -152,6 +161,7 @@ function lester.describe(name, func)
   if level == 0 then -- Get start time for top level describe blocks.
     failures = 0
     successes = 0
+    skipped = 0
     start = lester.seconds()
     if not lester_start then
       lester_start = start
@@ -174,6 +184,9 @@ function lester.describe(name, func)
     io_write(failures == 0 and colors_green or colors.red, '[====] ',
              colors.magenta, name, colors_reset, ' | ',
              colors_green, successes, colors_reset, ' successes / ')
+    if skipped > 0 then
+      io_write(colors.yellow, skipped, colors_reset, ' skipped / ')
+    end
     if failures > 0 then
       io_write(colors.red, failures, colors_reset, ' failures / ')
     end
@@ -219,7 +232,7 @@ end
 --- Declare a test, which consists of a set of assertions.
 -- @param name A name for the test.
 -- @param func The function containing all assertions.
--- @param enabled If not nil and equals to false, the test will be skipped and a message will be shown.
+-- @param enabled If not nil and equals to false, the test will be skipped and this will be reported.
 function lester.it(name, func, enabled)
   -- Skip the test silently if it does not match the filter.
   if lester.filter then
@@ -232,9 +245,16 @@ function lester.it(name, func, enabled)
   local colors_reset = colors.reset
   -- Skip the test if it's disabled, while displaying a message
   if enabled == false then
-    io_write(colors.yellow, '[SKIP] ', colors_reset)
-    show_test_name(name)
-    io_write('\n')
+    if not lester.quiet then
+      io_write(colors.yellow, '[SKIP] ', colors_reset)
+      show_test_name(name)
+      io_write('\n')
+    else -- Show just a character hinting that the test was skipped.
+      local o = (lester.utf8term and lester.colored) and quiet_o_char or 'o'
+      io_write(colors.yellow, o, colors_reset)
+    end
+    skipped = skipped + 1
+    total_skipped = total_skipped + 1
     return
   end
   -- Execute before handlers.
@@ -275,8 +295,7 @@ function lester.it(name, func, enabled)
     io_write('\n')
   else
     if success then -- Show just a character hinting that the test succeeded.
-      local o = (lester.utf8term and lester.colored) and
-                string.char(226, 151, 143) or 'o'
+      local o = (lester.utf8term and lester.colored) and quiet_o_char or 'o'
       io_write(colors.green, o, colors_reset)
     else -- Show complete test name on failure.
       io_write(last_succeeded and '\n' or '',
@@ -351,6 +370,7 @@ function lester.report()
   local colors_reset = colors.reset
   io.write(lester.quiet and '\n' or '',
            colors.green, total_successes, colors_reset, ' successes / ',
+           colors.yellow, total_skipped, colors_reset, ' skipped / ',
            colors.red, total_failures, colors_reset, ' failures / ',
            colors.bright, string.format('%.6f', now - (lester_start or now)), colors_reset, ' seconds\n')
   io.flush()

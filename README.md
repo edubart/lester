@@ -18,6 +18,7 @@ It was mainly created to replace Busted without dependencies in the
 * Simple and hackable when needed.
 * Use `describe` and `it` blocks to describe tests.
 * Supports `before` and `after` handlers.
+* Supports marking tests as disabled to be skipped.
 * Colored output.
 * Configurable via the script or with environment variables.
 * Quiet mode, to use in live development.
@@ -52,6 +53,11 @@ describe('my project', function()
     it('feature2', function()
       expect.truthy(false) -- Fail.
     end)
+
+    local feature3_test_enabled = false
+    it('feature3', function() -- This test will be skipped.
+      expect.truthy(false) -- Fail.
+    end, feature3_test_enabled)
   end)
 end)
 

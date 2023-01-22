@@ -17,6 +17,11 @@ describe('my project', function()
     it('feature2', function()
       expect.truthy(false) -- Fail.
     end)
+
+    local feature3_test_enabled = false
+    it('feature3', function() -- This test will be skipped.
+      expect.truthy(false) -- Fail.
+    end, feature3_test_enabled)
   end)
 end)
 

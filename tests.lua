@@ -21,7 +21,9 @@ describe("lester", function()
 
   it("assert", function()
     assert(true)
-  end)
+  end, true)
+
+  it("skip", function() assert(false) end, false)
 
   it("expect", function()
     expect.fail(function() error() end)
