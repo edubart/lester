@@ -3,6 +3,8 @@ local lester = require 'lester'
 local describe, it, expect = lester.describe, lester.it, lester.expect
 local skipfail = os.getenv('LESTER_TEST_SKIP_FAIL') == 'true'
 
+lester.parse_args()
+
 describe("lester", function()
   local b = false
   lester.before(function()

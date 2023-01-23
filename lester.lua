@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lester - v0.1.3 - 22/Jan/2023
+lester - v0.1.4 - 23/Jan/2023
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lester
 Minimal Lua test framework.
@@ -38,6 +38,9 @@ local describe, it, expect = lester.describe, lester.it, lester.expect
 -- Customize lester configuration.
 lester.show_traceback = false
 
+-- Parse arguments from command line.
+lester.parse_args()
+
 describe('my project', function()
   lester.before(function()
     -- This function is run before every test.
@@ -69,7 +72,7 @@ To customize the output of lester externally,
 you can set the following environment variables before running a test suite:
 
 * `LESTER_QUIET="true"`, omit print of passed tests.
-* `LESTER_COLORED="false"`, disable colored output.
+* `LESTER_COLOR="false"`, disable colored output.
 * `LESTER_SHOW_TRACEBACK="false"`, disable traceback on test failures.
 * `LESTER_SHOW_ERROR="false"`, omit print of error description of failed tests.
 * `LESTER_STOP_ON_FAIL="true"`, stop on first test failure.
@@ -77,6 +80,22 @@ you can set the following environment variables before running a test suite:
 * `LESTER_FILTER="some text"`, filter the tests that should be run.
 
 Note that these configurations can be changed via script too, check the documentation.
+
+## Customizing output with command line arguments
+
+You can also customize output using command line arguments
+if `lester.parse_args()` is called at startup.
+
+The following command line arguments are available:
+
+* `--quiet`, omit print of passed tests.
+* `--no-quiet`, show print of passed tests.
+* `--no-color`, disable colored output.
+* `--no-show-traceback`, disable traceback on test failures.
+* `--no-show-error`, omit print of error description of failed tests.
+* `--stop-on-fail`, stop on first test failure.
+* `--no-utf8term`, disable printing of UTF-8 characters.
+* `--filter="some text"`, filter the tests that should be run.
 
 ]]
 
@@ -102,7 +121,7 @@ local lester = {
   --- Weather lines of passed tests should not be printed. False by default.
   quiet = getboolenv('LESTER_QUIET', false),
   --- Weather the output should  be colorized. True by default.
-  colored = getboolenv('LESTER_COLORED', true),
+  color = getboolenv('LESTER_COLOR', true),
   --- Weather a traceback must be shown on test failures. True by default.
   show_traceback = getboolenv('LESTER_SHOW_TRACEBACK', true),
   --- Weather the error description of a test failure should be shown. True by default.
@@ -112,7 +131,7 @@ local lester = {
   --- Weather we can print UTF-8 characters to the terminal. True by default when supported.
   utf8term = getboolenv('LESTER_UTF8TERM', is_utf8term()),
   --- A string with a lua pattern to filter tests. Nil by default.
-  filter = os.getenv('LESTER_FILTER'),
+  filter = os.getenv('LESTER_FILTER') or '',
   --- Function to retrieve time in seconds with milliseconds precision, `os.clock` by default.
   seconds = os.clock,
 }
@@ -145,13 +164,34 @@ local color_codes = {
 
 local quiet_o_char = string.char(226, 151, 143)
 
--- Colors table, returning proper color code if colored mode is enabled.
+-- Colors table, returning proper color code if color mode is enabled.
 local colors = setmetatable({}, { __index = function(_, key)
-  return lester.colored and color_codes[key] or ''
+  return lester.color and color_codes[key] or ''
 end})
 
 --- Table of terminal colors codes, can be customized.
 lester.colors = colors
+
+-- Parse command line arguments from `arg` table.
+-- It `arg` is nil then the global `arg` is used.
+function lester.parse_args(arg)
+  for _,opt in ipairs(arg or _G.arg) do
+    local name, value
+    if opt:find('^%-%-filter') then
+      name = 'filter'
+      value = opt:match('^%-%-filter%=(.*)$')
+    elseif opt:find('^%-%-no%-[a-z0-9-]+$') then
+      name = opt:match('^%-%-no%-([a-z0-9-]+)$'):gsub('-','_')
+      value = false
+    elseif opt:find('^%-%-[a-z0-9-]+$') then
+      name = opt:match('^%-%-([a-z0-9-]+)$'):gsub('-','_')
+      value = true
+    end
+    if value ~= nil and lester[name] ~= nil and (type(lester[name]) == 'boolean' or type(lester[name]) == 'string') then
+      lester[name] = value
+    end
+  end
+end
 
 --- Describe a block of tests, which consists in a set of tests.
 -- Describes can be nested.
@@ -250,7 +290,7 @@ function lester.it(name, func, enabled)
       show_test_name(name)
       io_write('\n')
     else -- Show just a character hinting that the test was skipped.
-      local o = (lester.utf8term and lester.colored) and quiet_o_char or 'o'
+      local o = (lester.utf8term and lester.color) and quiet_o_char or 'o'
       io_write(colors.yellow, o, colors_reset)
     end
     skipped = skipped + 1
@@ -295,7 +335,7 @@ function lester.it(name, func, enabled)
     io_write('\n')
   else
     if success then -- Show just a character hinting that the test succeeded.
-      local o = (lester.utf8term and lester.colored) and quiet_o_char or 'o'
+      local o = (lester.utf8term and lester.color) and quiet_o_char or 'o'
       io_write(colors.green, o, colors_reset)
     else -- Show complete test name on failure.
       io_write(last_succeeded and '\n' or '',
@@ -307,7 +347,7 @@ function lester.it(name, func, enabled)
   end
   -- Print error message, colorizing its output if possible.
   if err and lester.show_error then
-    if lester.colored then
+    if lester.color then
       local errfile, errline, errmsg, rest = err:match('^([^:\n]+):(%d+): ([^\n]+)(.*)')
       if errfile and errline and errmsg and rest then
         io_write(colors.blue, errfile, colors_reset,
@@ -478,7 +518,7 @@ return lester
 --[[
 The MIT License (MIT)
 
-Copyright (c) 2021 Eduardo Bart (https://github.com/edubart)
+Copyright (c) 2021-2023 Eduardo Bart (https://github.com/edubart)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

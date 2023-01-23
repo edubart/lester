@@ -4,6 +4,9 @@ local describe, it, expect = lester.describe, lester.it, lester.expect
 -- Customize lester configuration.
 lester.show_traceback = false
 
+-- Parse arguments from command line.
+lester.parse_args()
+
 describe('my project', function()
   lester.before(function()
     -- This function is run before every test.
