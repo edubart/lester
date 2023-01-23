@@ -429,6 +429,17 @@ local expect = {}
 --- Expect module, containing utility function for doing assertions inside a test.
 lester.expect = expect
 
+--- Converts a value to a human-readable string.
+-- If the final string not contains only ASCII characters,
+-- then it is converted to a Lua hexdecimal string.
+function expect.tohumanstring(v)
+  local s = tostring(v)
+  if s:find'[^ -~\n\t]' then -- string contains non printable ASCII
+    return '"'..s:gsub('.', function(c) return string.format('\\x%02X', c:byte()) end)..'"'
+  end
+  return s
+end
+
 --- Check if a function fails with an error.
 -- If `expected` is nil then any error is accepted.
 -- If `expected` is a string then we check if the error contains that string.
@@ -452,35 +463,35 @@ end
 function expect.not_fail(func)
   local ok, err = pcall(func)
   if not ok then
-    error('expected function to not fail\ngot error:\n'..tostring(err), 2)
+    error('expected function to not fail\ngot error:\n'..expect.tohumanstring(err), 2)
   end
 end
 
 --- Check if a value is not `nil`.
 function expect.exist(v)
   if v == nil then
-    error('expected value to exist\ngot:\n'..tostring(v), 2)
+    error('expected value to exist\ngot:\n'..expect.tohumanstring(v), 2)
   end
 end
 
 --- Check if a value is `nil`.
 function expect.not_exist(v)
   if v ~= nil then
-    error('expected value to not exist\ngot:\n'..tostring(v), 2)
+    error('expected value to not exist\ngot:\n'..expect.tohumanstring(v), 2)
   end
 end
 
 --- Check if an expression is evaluates to `true`.
 function expect.truthy(v)
   if not v then
-    error('expected expression to be true\ngot:\n'..tostring(v), 2)
+    error('expected expression to be true\ngot:\n'..expect.tohumanstring(v), 2)
   end
 end
 
 --- Check if an expression is evaluates to `false`.
 function expect.falsy(v)
   if v then
-    error('expected expression to be false\ngot:\n'..tostring(v), 2)
+    error('expected expression to be false\ngot:\n'..expect.tohumanstring(v), 2)
   end
 end
 
@@ -502,14 +513,16 @@ end
 --- Check if two values are equal.
 function expect.equal(v1, v2)
   if not strict_eq(v1, v2) then
-    error('expected values to be equal\nfirst value:\n'..tostring(v1)..'\nsecond value:\n'..tostring(v2), 2)
+    local v1s, v2s = expect.tohumanstring(v1), expect.tohumanstring(v2)
+    error('expected values to be equal\nfirst value:\n'..v1s..'\nsecond value:\n'..v2s, 2)
   end
 end
 
 --- Check if two values are not equal.
 function expect.not_equal(v1, v2)
   if strict_eq(v1, v2) then
-    error('expected values to be not equal\nfirst value:\n'..tostring(v1)..'\nsecond value:\n'..tostring(v2), 2)
+    local v1s, v2s = expect.tohumanstring(v1), expect.tohumanstring(v2)
+    error('expected values to be not equal\nfirst value:\n'..v1s..'\nsecond value:\n'..v2s, 2)
   end
 end
 
