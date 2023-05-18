@@ -1,6 +1,6 @@
 --[[
 Minimal test framework for Lua.
-lester - v0.1.4 - 23/Jan/2023
+lester - v0.1.5 - 18/May/2023
 Eduardo Bart - edub4rt@gmail.com
 https://github.com/edubart/lester
 Minimal Lua test framework.
@@ -495,32 +495,78 @@ function expect.falsy(v)
   end
 end
 
---- Compare if two values are equal, considering nested tables.
-local function strict_eq(t1, t2)
-  if rawequal(t1, t2) then return true end
-  if type(t1) ~= type(t2) then return false end
-  if type(t1) ~= 'table' then return t1 == t2 end
-  if getmetatable(t1) ~= getmetatable(t2) then return false end
-  for k,v1 in pairs(t1) do
-    if not strict_eq(v1, t2[k]) then return false end
+--- Returns raw tostring result for a value.
+local function rawtostring(v)
+  local mt = getmetatable(v)
+  if mt then
+    setmetatable(v, nil)
   end
-  for k,v2 in pairs(t2) do
-    if not strict_eq(v2, t1[k]) then return false end
+  local s = tostring(v)
+  if mt then
+    setmetatable(v, mt)
+  end
+  return s
+end
+
+-- Returns key suffix for a string_eq table key.
+local function strict_eq_key_suffix(k)
+  if type(k) == 'string' then
+    if k:find('^[a-zA-Z_][a-zA-Z0-9]*$') then -- string is a lua field
+      return '.'..k
+    elseif k:find'[^ -~\n\t]' then -- string contains non printable ASCII
+      return '["'..k:gsub('.', function(c) return string.format('\\x%02X', c:byte()) end)..'"]'
+    else
+      return '["'..k..'"]'
+    end
+  else
+    return string.format('[%s]', rawtostring(k))
+  end
+end
+
+--- Compare if two values are equal, considering nested tables.
+function expect.strict_eq(t1, t2, name)
+  if rawequal(t1, t2) then return true end
+  name = name or 'value'
+  local t1type, t2type = type(t1), type(t2)
+  if t1type ~= t2type then
+    return false, string.format("expected types to be equal for %s\nfirst: %s\nsecond: %s",
+      name, t1type, t2type)
+  end
+  if t1type == 'table' then
+    if getmetatable(t1) ~= getmetatable(t2) then
+      return false, string.format("expected metatables to be equal for %s\nfirst: %s\nsecond: %s",
+        name,  expect.tohumanstring(t1), expect.tohumanstring(t2))
+    end
+    for k,v1 in pairs(t1) do
+      local ok, err = expect.strict_eq(v1, t2[k], name..strict_eq_key_suffix(k))
+      if not ok then
+        return false, err
+      end
+    end
+    for k,v2 in pairs(t2) do
+      local ok, err = expect.strict_eq(v2, t1[k], name..strict_eq_key_suffix(k))
+      if not ok then
+        return false, err
+      end
+    end
+  elseif t1 ~= t2 then
+    return false, string.format("expected values to be equal for %s\nfirst:\n%s\nsecond:\n%s",
+      name,  expect.tohumanstring(t1), expect.tohumanstring(t2))
   end
   return true
 end
 
 --- Check if two values are equal.
 function expect.equal(v1, v2)
-  if not strict_eq(v1, v2) then
-    local v1s, v2s = expect.tohumanstring(v1), expect.tohumanstring(v2)
-    error('expected values to be equal\nfirst value:\n'..v1s..'\nsecond value:\n'..v2s, 2)
+  local ok, err = expect.strict_eq(v1, v2)
+  if not ok then
+    error(err, 2)
   end
 end
 
 --- Check if two values are not equal.
 function expect.not_equal(v1, v2)
-  if strict_eq(v1, v2) then
+  if expect.strict_eq(v1, v2) then
     local v1s, v2s = expect.tohumanstring(v1), expect.tohumanstring(v2)
     error('expected values to be not equal\nfirst value:\n'..v1s..'\nsecond value:\n'..v2s, 2)
   end

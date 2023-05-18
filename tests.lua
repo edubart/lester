@@ -112,6 +112,14 @@ describe("lester", function()
         expect.not_equal(1, 1)
       end)
 
+      it("equal (table)", function()
+        expect.equal({a=1}, {a=2})
+      end)
+
+      it("not equal (table)", function()
+        expect.not_equal({a=1}, {a=1})
+      end)
+
       it("equal (binary)", function()
         expect.equal('\x01\x02', '\x01\x03')
       end)

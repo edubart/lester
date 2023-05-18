@@ -27,6 +27,7 @@
 <h1>ldoc</h1>
 
 
+
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
@@ -80,31 +81,31 @@ which returns a table that includes all of the functionality:</p>
 </span>lester.show_traceback = <span class="keyword">false</span>
 
 <span class="comment">-- Parse arguments from command line.
-</span>lester.parse_args()
+</span>lester.<span class="function-name">parse_args</span>()
 
-describe(<span class="string">'my project'</span>, <span class="keyword">function</span>()
-  lester.before(<span class="keyword">function</span>()
+<span class="function-name">describe</span>(<span class="string">'my project'</span>, <span class="keyword">function</span>()
+  lester.<span class="function-name">before</span>(<span class="keyword">function</span>()
     <span class="comment">-- This function is run before every test.
 </span>  <span class="keyword">end</span>)
 
-  describe(<span class="string">'module1'</span>, <span class="keyword">function</span>() <span class="comment">-- Describe blocks can be nested.
-</span>    it(<span class="string">'feature1'</span>, <span class="keyword">function</span>()
-      expect.equal(<span class="string">'something'</span>, <span class="string">'something'</span>) <span class="comment">-- Pass.
+  <span class="function-name">describe</span>(<span class="string">'module1'</span>, <span class="keyword">function</span>() <span class="comment">-- Describe blocks can be nested.
+</span>    <span class="function-name">it</span>(<span class="string">'feature1'</span>, <span class="keyword">function</span>()
+      expect.<span class="function-name">equal</span>(<span class="string">'something'</span>, <span class="string">'something'</span>) <span class="comment">-- Pass.
 </span>    <span class="keyword">end</span>)
 
-    it(<span class="string">'feature2'</span>, <span class="keyword">function</span>()
-      expect.truthy(<span class="keyword">false</span>) <span class="comment">-- Fail.
+    <span class="function-name">it</span>(<span class="string">'feature2'</span>, <span class="keyword">function</span>()
+      expect.<span class="function-name">truthy</span>(<span class="keyword">false</span>) <span class="comment">-- Fail.
 </span>    <span class="keyword">end</span>)
 
     <span class="keyword">local</span> feature3_test_enabled = <span class="keyword">false</span>
-    it(<span class="string">'feature3'</span>, <span class="keyword">function</span>() <span class="comment">-- This test will be skipped.
-</span>      expect.truthy(<span class="keyword">false</span>) <span class="comment">-- Fail.
+    <span class="function-name">it</span>(<span class="string">'feature3'</span>, <span class="keyword">function</span>() <span class="comment">-- This test will be skipped.
+</span>      expect.<span class="function-name">truthy</span>(<span class="keyword">false</span>) <span class="comment">-- Fail.
 </span>    <span class="keyword">end</span>, feature3_test_enabled)
   <span class="keyword">end</span>)
 <span class="keyword">end</span>)
 
-lester.report() <span class="comment">-- Print overall statistic of the tests run.
-</span>lester.exit() <span class="comment">-- Exit with success if all tests passed.</span>
+lester.<span class="function-name">report</span>() <span class="comment">-- Print overall statistic of the tests run.
+</span>lester.<span class="function-name">exit</span>() <span class="comment">-- Exit with success if all tests passed.</span>
 </pre>
 
 
@@ -200,6 +201,10 @@ if <code>lester.parse_args()</code> is called at startup.</p>
 	<td class="summary">Check if an expression is evaluates to <code>false</code>.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#expect.strict_eq">expect.strict_eq (t1, t2, name)</a></td>
+	<td class="summary">Compare if two values are equal, considering nested tables.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#expect.equal">expect.equal (v1, v2)</a></td>
 	<td class="summary">Check if two values are equal.</td>
 	</tr>
@@ -240,7 +245,7 @@ if <code>lester.parse_args()</code> is called at startup.</p>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#seconds">seconds</a></td>
-	<td class="summary">Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.1/manual.html#pdf-os.clock">os.clock</a> by default.</td>
+	<td class="summary">Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.4/manual.html#pdf-os.clock">os.clock</a> by default.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#colors">colors</a></td>
@@ -550,6 +555,38 @@ if <code>lester.parse_args()</code> is called at startup.</p>
 
 </dd>
     <dt>
+    <a name = "expect.strict_eq"></a>
+    <strong>expect.strict_eq (t1, t2, name)</strong>
+    </dt>
+    <dd>
+    Compare if two values are equal, considering nested tables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+
+
+
+        </li>
+        <li><span class="parameter">t2</span>
+
+
+
+        </li>
+        <li><span class="parameter">name</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "expect.equal"></a>
     <strong>expect.equal (v1, v2)</strong>
     </dt>
@@ -710,7 +747,7 @@ if <code>lester.parse_args()</code> is called at startup.</p>
     <strong>seconds</strong>
     </dt>
     <dd>
-    Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.1/manual.html#pdf-os.clock">os.clock</a> by default.
+    Function to retrieve time in seconds with milliseconds precision, <a href="https://www.lua.org/manual/5.4/manual.html#pdf-os.clock">os.clock</a> by default.
 
 
 
@@ -753,8 +790,8 @@ if <code>lester.parse_args()</code> is called at startup.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-01-23 10:57:06 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-05-18 15:03:50 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
