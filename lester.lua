@@ -422,7 +422,7 @@ function lester.exit()
   -- Collect garbage before exiting to call __gc handlers
   collectgarbage()
   collectgarbage()
-  os.exit(total_failures == 0)
+  os.exit(total_failures == 0, true)
 end
 
 local expect = {}
